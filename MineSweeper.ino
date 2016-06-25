@@ -7,14 +7,14 @@
 bool delaynow = false;
 
 /*
- *		Two matrices are used to update the state
- *		of the 3x3 LED grid.
- *		currLights is used to decide which light should be off(0), on(1),
- *		or blinking(2).
+ * Two matrices are used to update the state
+ * of the 3x3 LED grid.
+ * currLights is used to decide which light should be off(0), on(1),
+ * or blinking(2).
 
- *		lightsValues is used to keep the static states of the lights.
- *		In this matrix, the lights are either off(0) or on(1), and it only
- *		changes ONCE per position when a light is turned off.
+ * lightsValues is used to keep the static states of the lights.
+ * In this matrix, the lights are either off(0) or on(1), and it only
+ * changes ONCE per position when a light is turned off.
  */
 int currLights[][3] = { {1,1,1,},
                         {1,1,1,},
@@ -32,12 +32,13 @@ int inputI = 0;
 int inputJ = 0;
 int delayVal = 200;
 
-// the setup function runs once when you press reset or power the board
+// The setup function initialize pins 1 through 9 to OUTPUT mode
+// pin 13 to INPUT_PULLUP
+// and gets the first random location for the mine on the grid
 void setup() {
   randomSeed(analogRead(0));
   int mineI = random(3);
   int mineJ = random(3);
-//  Serial.begin(9600);
   pinMode(13, INPUT_PULLUP);
   for (int i = 1; i < 10; ++i) {
     pinMode(i, OUTPUT);
@@ -48,16 +49,16 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   
-	/*
-	 *		First, check if the button is pressed
-	 *		in an attempt to defuse a light.
-	 */
+  /*
+   * First, check if the button is pressed
+   * in an attempt to defuse a light.
+   */
   int sensorVal = digitalRead(13);
   if(!sensorVal) {
 
-		// If the light was not defused before
-		//	 Run the defuse animation and then check if
-		// the mine was triggered.
+    // If the light was not defused before
+    // Run the defuse animation and then check if
+    // the mine was triggered.
     if (lightsValues[inputI][inputJ] != 0) {
       defuseAnimation(inputI, inputJ);
 
@@ -71,23 +72,23 @@ void loop() {
     }
   }
 	
-	// If the player successfully defused 8 lights,
-	// then the last light is the mine, and so the player
-	// wins!
+  // If the player successfully defused 8 lights,
+  // then the last light is the mine, and so the player
+  // wins!
   if (minesDefused == 8) {
     delay(1000);
     winAnimation();
     resetGame();
   }
   
-	/*
-	 *		Second, synch the two matrices that are used to
-	 * 	activate the 3x3 LED grid in preperation to process
-	 *		the current potentiometers' input.
+  /*
+   * Second, synch the two matrices that are used to
+   * activate the 3x3 LED grid in preperation to process
+   * the current potentiometers' input.
 
-	 *		Once the input is recieved, update the current position
-	 *		to 2 (blinking mode), and update the LED grid.
-	 */ 
+   * Once the input is recieved, update the current position
+   * to 2 (blinking mode), and update the LED grid.
+   */ 
   currLights[inputI][inputJ] = lightsValues[inputI][inputJ];
   inputI = volts_to_index(analogRead(INPUT_PIN_X));
   inputJ = volts_to_index(analogRead(INPUT_PIN_Y));
@@ -124,12 +125,12 @@ void loop() {
 
 
 /*
- *		A simple function to call each time
- *  a player loses or wins the game.
- *  Simply returns the grid to its initial state.
+ * A simple function to call each time
+ * a player loses or wins the game.
+ * Simply returns the grid to its initial state.
  */
 void resetGame() {
-	// Set all the matrices to a 3x3 grid of ones. 
+  // Set all the matrices to a 3x3 grid of ones. 
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       currLights[i][j] = 1;
@@ -137,7 +138,7 @@ void resetGame() {
     }
   }
   
-	// Reset all params and get a new random mine position.
+  // Reset all params and get a new random mine position.
   minesDefused = 0;
   mineI = random(3);
   mineJ = random(3);
@@ -148,17 +149,17 @@ void resetGame() {
 
 
 /*
- *		Given a 3x3 array with input pins alligned like so:
-					-----j----
-				|	1		4		7
-				i	2		5		8
-				|	3		6		9
- *		calculate the pin number, given indices i and j as follows:
- *		if j == 0, return i+1
- *  else if j == 1, return i+4
- *  else if j == 2, return i+7
+ * Given a 3x3 array with input pins alligned like so:
+		------- j -------
+	|	1	4	7
+	i	2	5	8
+	|	3	6	9
+ * calculate the pin number, given indices i and j as follows:
+ * if j == 0, return i+1
+ * else if j == 1, return i+4
+ * else if j == 2, return i+7
 
- *  example, when i == 1 and j == 2, output pin is 8.
+ * example, when i == 1 and j == 2, output pin is 8.
  */
 int getPinNum(int i, int j) {
   switch (j) {
@@ -173,8 +174,8 @@ int getPinNum(int i, int j) {
 
 
 /*
- *		A function to convert a potentiometer's
- *		input (0-1023) to 0, 1, or 2.
+ * A function to convert a potentiometer's
+ * input (0-1023) to 0, 1, or 2.
  */
 int volts_to_index(int v) {
   if(v < 341)
@@ -187,12 +188,12 @@ int volts_to_index(int v) {
 
 
 /*
- *		Animation that plays each time the player
- *  attempts to defuse one of the lights.
+ * Animation that plays each time the player
+ * attempts to defuse one of the lights.
  */
 void defuseAnimation(int i, int j) {
-	//		Blink 25 times. Each time
-	// decrease the delay time by 2.
+  // Blink 25 times. Each time
+  // decrease the delay time by 2.
   int delayTime = 70;
   while (delayTime > 20) {
     digitalWrite(getPinNum(i,j), HIGH);
@@ -205,13 +206,13 @@ void defuseAnimation(int i, int j) {
 
 
 /*
- *		Animation to play when a player
- *		wins the game (very rare...)
+ * Animation to play when a player
+ * wins the game (very rare...)
  */
 void winAnimation() {
-	/*
-	 *		Initialize the grid to show only the mine.
-	 */
+  /*
+   * Initialize the grid to show only the mine.
+   */
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
       int led = getPinNum(i,j);
@@ -224,8 +225,8 @@ void winAnimation() {
   }
 
   /*
-	 *		'Flip' the grid 20 times.
-	 */  
+   * 'Flip' the grid 20 times.
+   */  
   int count = 20;
   while (count > 0) {
     for (int i = 0; i < 3; ++i) {
@@ -238,9 +239,9 @@ void winAnimation() {
     --count;
   }
 
-	/*
-	 *		Turn the grid off and wait for a second.
-	 */
+ /*
+  * Turn the grid off and wait for a second.
+  */
   for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
         int led = getPinNum(i,j);
@@ -253,13 +254,13 @@ void winAnimation() {
 
 
 /*
- *		Animation to play when a player
- *		loses the game (happens all the time.)
+ * Animation to play when a player
+ * loses the game (happens all the time.)
  */
 void loseAnimation() {
-	/*
-	 *		Initialize the 3x3 grid to form an 'X'
-	 */
+  /*
+   * Initialize the 3x3 grid to form an 'X'
+   */
   for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
         int led = getPinNum(i,j);
@@ -272,8 +273,8 @@ void loseAnimation() {
   }
   
   /*
-	 *		'Flip' the grid 20 times.
-	 */
+   * 'Flip' the grid 20 times.
+   */
   int count = 20;
   while (count > 0) {
     for (int i = 0; i < 3; ++i) {
@@ -286,9 +287,9 @@ void loseAnimation() {
     --count;
   }
 
-	/*
-	 *		Turn the grid off and wait for a second.
-	 */
+  /*
+   * Turn the grid off and wait for a second.
+   */
   for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 3; ++j) {
         int led = getPinNum(i,j);
